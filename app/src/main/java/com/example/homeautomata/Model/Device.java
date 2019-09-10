@@ -1,7 +1,7 @@
 package com.example.homeautomata.Model;
 
-import com.example.homeautomata.Controller.HardwareInputControleSystem;
-import com.example.homeautomata.Controller.OutputControleSystem;
+import com.example.homeautomata.Controller.HardwareInputControlSystem;
+import com.example.homeautomata.Controller.OutputControlSystem;
 
 public class Device {
     private int deviceId;
@@ -12,8 +12,8 @@ public class Device {
     private String deviceCategory;
     private boolean deviceState;
 
-    private HardwareInputControleSystem hardwareInputControleSystem = new HardwareInputControleSystem();
-    private OutputControleSystem outputControleSystem = new OutputControleSystem();
+    private HardwareInputControlSystem hardwareInputControlSystem = new HardwareInputControlSystem();
+    private OutputControlSystem outputControlSystem = new OutputControlSystem();
 
     public int getDeviceId() {
         return deviceId;
@@ -72,12 +72,12 @@ public class Device {
     }
 
     public void init() {
-        hardwareInputControleSystem.init(this, deviceInputPort);
-        outputControleSystem.init(deviceOutputPort);
+        hardwareInputControlSystem.init(this, deviceInputPort);
+        outputControlSystem.init(deviceOutputPort);
     }
 
     public void onDeviceStateChange(boolean deviceState) {
         this.deviceState = deviceState;
-        outputControleSystem.setState(deviceState);
+        outputControlSystem.setState(deviceState);
     }
 }

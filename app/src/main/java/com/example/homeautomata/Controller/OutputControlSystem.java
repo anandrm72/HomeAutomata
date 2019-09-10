@@ -6,7 +6,7 @@ import com.google.android.things.pio.PeripheralManager;
 import java.io.Closeable;
 import java.io.IOException;
 
-public class OutputControleSystem implements Closeable {
+public class OutputControlSystem implements Closeable {
     private PeripheralManager peripheralManager = PeripheralManager.getInstance();
     private Gpio mGpio;
     private String port;

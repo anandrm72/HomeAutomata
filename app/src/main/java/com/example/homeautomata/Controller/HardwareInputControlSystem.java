@@ -10,7 +10,7 @@ import com.google.android.things.pio.PeripheralManager;
 import java.io.Closeable;
 import java.io.IOException;
 
-public class HardwareInputControleSystem implements Closeable {
+public class HardwareInputControlSystem implements Closeable {
     private static final String TAG = "Honey";
     private PeripheralManager peripheralManager = PeripheralManager.getInstance();
     private Gpio mGpio;
