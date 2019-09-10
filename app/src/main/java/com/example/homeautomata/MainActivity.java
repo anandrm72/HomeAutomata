@@ -1,9 +1,12 @@
 package com.example.homeautomata;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+
+import com.example.homeautomata.Controller.DeviceController;
+
+import java.io.IOException;
 
 /**
  * Skeleton of an Android Things activity.
@@ -26,8 +29,24 @@ import android.os.Bundle;
  */
 public class MainActivity extends Activity {
 
+    private Handler mHandler = new Handler();
+    private DeviceController deviceController = new DeviceController();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mHandler.post(mDeviceControllerRunable);
     }
+
+    private Runnable mDeviceControllerRunable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                deviceController.initDevices();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 }
