@@ -16,6 +16,25 @@ public class HardwareInputControlSystem implements Closeable {
     private Gpio mGpio;
     private String port;
     private Device mDevice;
+
+    public void init(Device device, String inputPort) {
+        this.port = inputPort;
+        this.mDevice = device;
+        configure();
+    }
+
+    private void configure() {
+        try {
+            mGpio = peripheralManager.openGpio(port);
+            mGpio.setDirection(Gpio.DIRECTION_IN);
+            mGpio.setEdgeTriggerType(Gpio.EDGE_BOTH);
+            mGpio.registerGpioCallback(gpioCallback);
+            Log.i(TAG, "Configuring input port   " + mDevice.getDeviceName());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private GpioCallback gpioCallback = new GpioCallback() {
         @Override
         public boolean onGpioEdge(Gpio gpio) {
@@ -43,24 +62,6 @@ public class HardwareInputControlSystem implements Closeable {
             Log.w(TAG, gpio + "Error event : " + error);
         }
     };
-
-    public void init(Device device, String inputPort) {
-        this.port = inputPort;
-        this.mDevice = device;
-        configure();
-    }
-
-    private void configure() {
-        try {
-            mGpio = peripheralManager.openGpio(port);
-            mGpio.setDirection(Gpio.DIRECTION_IN);
-            mGpio.setEdgeTriggerType(Gpio.EDGE_BOTH);
-            mGpio.registerGpioCallback(gpioCallback);
-            Log.i(TAG, "Configuring input port   " + mDevice.getDeviceName());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void close() throws IOException {

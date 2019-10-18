@@ -1,6 +1,7 @@
 package com.example.homeautomata.Controller;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.homeautomata.Model.Constants;
 import com.example.homeautomata.Model.Device;
@@ -32,5 +33,20 @@ public class DeviceController {
         lightDevice1.setDeviceType(Constants.DEVICE_TYPE2);
         lightDevice1.init();
         deviceList.add(lightDevice1);
+    }
+
+    public void updateDeviceState(String s) {
+        switch (s) {
+            case "On":
+                for (int i = 0; i < deviceList.size(); i++) {
+                    deviceList.get(i).onDeviceStateChange(true);
+                }
+                break;
+            case "Off":
+                for (int i = 0; i < deviceList.size(); i++) {
+                    deviceList.get(i).onDeviceStateChange(false);
+                }
+                break;
+        }
     }
 }

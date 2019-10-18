@@ -23,6 +23,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Skeleton of an Android Things activity.
  * <p>
@@ -47,12 +49,15 @@ public class MainActivity extends Activity {
     private static final Strategy STRATEGY = Strategy.P2P_STAR;
     private static final String SERVICE_ID = "com.iot.homeautomata";
     private static final String TAG = "com.iot.homeautomata";
-    private static final String NAME = "Mobile device";
+    private static final String NAME = "PI";
     private static String endpoitId;
+
+    private Handler mHandler = new Handler();
+    private DeviceController deviceController = new DeviceController();
     private final PayloadCallback mPayloadCallBack = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
-
+            updateState(new String(payload.asBytes(), UTF_8));
         }
 
         @Override
@@ -60,12 +65,8 @@ public class MainActivity extends Activity {
 
         }
     };
-
-    private Handler mHandler = new Handler();
-    private DeviceController deviceController = new DeviceController();
     private ConnectionsClient mConnectionsClient;
-
-    private Runnable mDeviceControllerRunable = new Runnable() {
+    private Runnable mDeviceControllerRunnable = new Runnable() {
         @Override
         public void run() {
             try {
@@ -75,6 +76,17 @@ public class MainActivity extends Activity {
             }
         }
     };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mConnectionsClient = Nearby.getConnectionsClient(this);
+        mHandler.post(mDeviceControllerRunnable);
+        startAdvertising();
+    }
+
+
     private final ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
         public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
@@ -102,15 +114,6 @@ public class MainActivity extends Activity {
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mConnectionsClient = Nearby.getConnectionsClient(this);
-        mHandler.post(mDeviceControllerRunable);
-        startAdvertising();
-    }
-
     private void startAdvertising() {
         AdvertisingOptions advertisingOptions = new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
         mConnectionsClient.startAdvertising(NAME, SERVICE_ID, mConnectionLifecycleCallback, advertisingOptions)
@@ -127,5 +130,10 @@ public class MainActivity extends Activity {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    //    Controling over mobile
+    private void updateState(String s) {
+        deviceController.updateDeviceState(s);
     }
 }
