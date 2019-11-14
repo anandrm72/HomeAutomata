@@ -1,16 +1,18 @@
-package com.example.home.Connection;
+package com.example.home.Lib;
 
+import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import com.example.home.MainFragment;
-import com.example.home.R;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -28,7 +30,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class Discoverer {
+public abstract class BaseActivity extends AppCompatActivity {
+    private static final String[] REQUIRED_PERMISSION = new String[]{
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.CHANGE_WIFI_STATE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+    };
+
+    private static final int REQUEST_CODE_REQUIRED_PERMISSION = 1;
 
     private static final String TAG = "com.iot.homeautomata";
     private static final String NAME = "Mobile device";
@@ -44,111 +55,147 @@ public class Discoverer {
         @Override
         public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate payloadTransferUpdate) {
             if (payloadTransferUpdate.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
-                Toast.makeText(mContext, "Switch status updated", Toast.LENGTH_LONG).show();
+                logD("Message sent...");
             }
         }
     };
-    private Context mContext;
     private ConnectionsClient mConnectionsClient;
     private final ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
-        public void onConnectionInitiated(@NonNull final String s, @NonNull ConnectionInfo connectionInfo) {
-            Log.d(TAG, "Connecting to " + connectionInfo.getEndpointName());
-            new AlertDialog.Builder(mContext)
-                    .setTitle("Accept connection to " + connectionInfo.getEndpointName())
-                    .setMessage("Do you like to connect with " + connectionInfo.getEndpointName())
-                    .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            mConnectionsClient.acceptConnection(s, mPayloadCallBack);
-                        }
-                    })
-                    .setNegativeButton("Reject", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            mConnectionsClient.rejectConnection(s);
-                        }
-                    })
-                    .setCancelable(false)
-                    .setIcon(R.drawable.ic_developer_board_icon_24dp)
-                    .show();
-//            mConnectionsClient.acceptConnection(s, mPayloadCallBack);
+        public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
+            logD("Connecting to " + connectionInfo.getEndpointName());
+            mConnectionsClient.acceptConnection(s, mPayloadCallBack);
         }
 
         @Override
         public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
-            Log.d(TAG, connectionResolution.getStatus().getStatusMessage());
+            logD(connectionResolution.getStatus().getStatusMessage());
             if (connectionResolution.getStatus().isSuccess()) {
-                Log.d(TAG, "Connected successfully with " + s);
-                mConnectionsClient.stopDiscovery();
+                logD("Connected successful with " + s);
                 endpoitId = s;
-
-//                updating ui components
-                MainFragment.getInstance().updateDeviceState(true);
+                connectedToEndpoint(endpoitId);
 
             } else {
-                Log.d(TAG, "Connection failed");
+                logD("Connection failed");
             }
         }
 
         @Override
         public void onDisconnected(@NonNull String s) {
-            Log.d(TAG, "Disconnected from " + s);
+            logD("Disconnected from " + s);
+            disconnectedFromEndpoint(s);
         }
     };
     private final EndpointDiscoveryCallback mEndpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
-        public void onEndpointFound(@NonNull String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
+        public void onEndpointFound(@NonNull final String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
             mConnectionsClient.requestConnection(NAME, s, mConnectionLifecycleCallback)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Connecting...");
+                            logD("Connecting to " + s);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, e.getMessage());
-                            e.printStackTrace();
+                            logD(e.getMessage());
                         }
                     });
         }
 
         @Override
         public void onEndpointLost(@NonNull String s) {
-            Log.d(TAG, "Disconnected from endpoint");
+            logD("Connection lost from " + s);
         }
     };
-    private MainFragment mFragmentActivity;
 
-    public Discoverer(Context context, MainFragment activity) {
-        this.mContext = context;
-        this.mFragmentActivity = activity;
-        this.mConnectionsClient = Nearby.getConnectionsClient(mContext);
+    private static boolean hasPermissions(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public void startDiscover() {
-        mConnectionsClient = Nearby.getConnectionsClient(mContext);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mConnectionsClient = Nearby.getConnectionsClient(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!hasPermissions(this, getRequiredPermissions())) {
+            if (Build.VERSION.SDK_INT < 23) {
+                ActivityCompat.requestPermissions(this, getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSION);
+            } else {
+                requestPermissions(getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSION);
+            }
+        }
+    }
+
+    protected void startDiscover() {
         DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
         mConnectionsClient.startDiscovery(SERVICE_ID, mEndpointDiscoveryCallback, discoveryOptions)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Discovering...");
+                        logD("Discovering...");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        logD(e.getMessage());
                         e.printStackTrace();
-                        Log.d(TAG, e.getMessage());
                     }
                 });
     }
 
-    //    updating switch state
-    public void updateDeviceState(String state) {
-        mConnectionsClient.sendPayload(endpoitId, Payload.fromBytes(state.getBytes(UTF_8)));
+    private void disconnectedFromEndpoint(String s) {
+        onEndpointDisconnected(s);
+    }
+
+    protected void onEndpointDisconnected(String s) {
+    }
+
+    private void connectedToEndpoint(String endpoitId) {
+        onEndpointConnected(endpoitId);
+    }
+
+    protected void onEndpointConnected(String endpoitId) {
+    }
+
+    protected void sendCommand(String msg) {
+        mConnectionsClient.sendPayload(endpoitId, Payload.fromBytes(msg.getBytes(UTF_8)));
+    }
+
+    //    Log message
+    protected void logD(String msg) {
+        Log.d(TAG, msg);
+    }
+
+    protected void logE(String msg) {
+        Log.e(TAG, msg);
+    }
+
+    protected void logI(String msg) {
+        Log.i(TAG, msg);
+    }
+
+    protected void logW(String msg) {
+        Log.w(TAG, msg);
+    }
+
+    protected void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private String[] getRequiredPermissions() {
+        return REQUIRED_PERMISSION;
     }
 }

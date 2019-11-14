@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.homeautomata.Controller.DeviceController;
+import com.example.homeautomata.lib.BaseActivity;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -44,96 +45,50 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  *
  * @see <a href="https://github.com/androidthings/contrib-drivers#readme">https://github.com/androidthings/contrib-drivers#readme</a>
  */
-public class MainActivity extends Activity {
-
-    private static final Strategy STRATEGY = Strategy.P2P_STAR;
-    private static final String SERVICE_ID = "com.iot.homeautomata";
-    private static final String TAG = "com.iot.homeautomata";
-    private static final String NAME = "PI";
-    private static String endpoitId;
-
-    private Handler mHandler = new Handler();
-    private DeviceController deviceController = new DeviceController();
-    private final PayloadCallback mPayloadCallBack = new PayloadCallback() {
-        @Override
-        public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
-            updateState(new String(payload.asBytes(), UTF_8));
-        }
-
-        @Override
-        public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-
-        }
-    };
-    private ConnectionsClient mConnectionsClient;
-    private Runnable mDeviceControllerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                deviceController.initDevices();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    };
+public class MainActivity extends BaseActivity {
+    private static boolean isDeviceConnected = false;
+    DeviceController deviceController = DeviceController.getInstance();
+//    private Handler mHandler = new Handler();
+//    private DeviceController deviceController = new DeviceController();
+//    private Runnable mDeviceControllerRunnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            try {
+//                deviceController.initDevices();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mConnectionsClient = Nearby.getConnectionsClient(this);
-        mHandler.post(mDeviceControllerRunnable);
+//        mHandler.post(mDeviceControllerRunnable);
         startAdvertising();
     }
 
+    @Override
+    protected void onEndpointConnected(String endpoitId) {
+        isDeviceConnected = true;
+    }
 
-    private final ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
-        @Override
-        public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
-            mConnectionsClient.acceptConnection(s, mPayloadCallBack);
-            Log.d(TAG, "Connecting to : " + connectionInfo.getEndpointName());
+    @Override
+    protected void onEndpointDisconnected(String s) {
+        isDeviceConnected = false;
+    }
+
+    @Override
+    protected void onReceiveCommand(String[] cmd) {
+        switch (cmd[0]) {
+            case "Create":
+                showToast("Creating....");
+                deviceController.createDevices(cmd[1], cmd[2], cmd[3]);
         }
-
-        @Override
-        public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
-            Log.d(TAG, connectionResolution.getStatus().getStatusMessage());
-            if (connectionResolution.getStatus().isSuccess()) {
-                Log.d(TAG, "Connected successfully with " + s);
-                mConnectionsClient.stopAdvertising();
-                endpoitId = s;
-            } else {
-                Log.d(TAG, "Connection failed");
-            }
-        }
-
-        @Override
-        public void onDisconnected(@NonNull String s) {
-            Log.d(TAG, "Disconnected from endpoint");
-            finish();
-            System.exit(0);
-        }
-    };
-
-    private void startAdvertising() {
-        AdvertisingOptions advertisingOptions = new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
-        mConnectionsClient.startAdvertising(NAME, SERVICE_ID, mConnectionLifecycleCallback, advertisingOptions)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Advertising...");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, e.getMessage());
-                        e.printStackTrace();
-                    }
-                });
     }
 
     //    Controling over mobile
-    private void updateState(String s) {
-        deviceController.updateDeviceState(s);
-    }
+//    private void updateState(String s) {
+//        deviceController.updateDeviceState(s);
+//    }
 }

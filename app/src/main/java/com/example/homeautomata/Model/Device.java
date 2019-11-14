@@ -4,10 +4,12 @@ import com.example.homeautomata.Controller.HardwareInputControlSystem;
 import com.example.homeautomata.Controller.OutputControlSystem;
 
 public class Device {
-    private int deviceId;
+    private String deviceId;
     private String deviceName;
-    private String deviceInputPort;
-    private String deviceOutputPort;
+    private Port deviceInputPort;
+    private Port deviceOutputPort;
+    //    private String deviceInputPort;
+//    private String deviceOutputPort;
     private String deviceType;
     private String deviceCategory;
     private boolean deviceState;
@@ -15,11 +17,11 @@ public class Device {
     private HardwareInputControlSystem hardwareInputControlSystem = new HardwareInputControlSystem();
     private OutputControlSystem outputControlSystem = new OutputControlSystem();
 
-    public int getDeviceId() {
+    public String getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(int deviceId) {
+    public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
 
@@ -31,19 +33,35 @@ public class Device {
         this.deviceName = deviceName;
     }
 
-    public String getDeviceInputPort() {
+    public Port getDeviceInputPort() {
         return deviceInputPort;
     }
 
-    public void setDeviceInputPort(String deviceInputPort) {
+//    public String getDeviceInputPort() {
+//        return deviceInputPort;
+//    }
+
+//    public void setDeviceInputPort(String deviceInputPort) {
+//        this.deviceInputPort = deviceInputPort;
+//    }
+//
+//    public String getDeviceOutputPort() {
+//        return deviceOutputPort;
+//    }
+//
+//    public void setDeviceOutputPort(String deviceOutputPort) {
+//        this.deviceOutputPort = deviceOutputPort;
+//    }
+
+    public void setDeviceInputPort(Port deviceInputPort) {
         this.deviceInputPort = deviceInputPort;
     }
 
-    public String getDeviceOutputPort() {
+    public Port getDeviceOutputPort() {
         return deviceOutputPort;
     }
 
-    public void setDeviceOutputPort(String deviceOutputPort) {
+    public void setDeviceOutputPort(Port deviceOutputPort) {
         this.deviceOutputPort = deviceOutputPort;
     }
 
@@ -72,8 +90,10 @@ public class Device {
     }
 
     public void init() {
-        hardwareInputControlSystem.init(this, deviceInputPort);
-        outputControlSystem.init(deviceOutputPort);
+        hardwareInputControlSystem.init(this, deviceInputPort.getPortName());
+        outputControlSystem.init(deviceOutputPort.getPortName());
+        deviceInputPort.setAvailable(false);
+        deviceOutputPort.setAvailable(false);
     }
 
     public void onDeviceStateChange(boolean deviceState) {

@@ -1,8 +1,78 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?><!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:id="@+id/container"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    tools:context=".MainActivity"></FrameLayout>-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"></FrameLayout>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
+
+    <ProgressBar
+        android:id="@+id/progress_circular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/colorPrimary"
+        android:indeterminateTintMode="src_atop"
+        android:visibility="invisible" />
+
+    <!--    <Button-->
+    <!--        android:id="@+id/discover"-->
+    <!--        style="@style/Widget.MaterialComponents.Button"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="top"-->
+    <!--        android:layout_margin="16dp"-->
+    <!--        android:text="@string/discover_button_text" />-->
+
+    <!--<com.google.android.material.button.MaterialButtonToggleGroup-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:gravity="center">-->
+    <!--<Button-->
+    <!--android:layout_width="100dp"-->
+    <!--android:layout_height="100dp"-->
+    <!--style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+    <!--app:icon="@drawable/ic_lightbulb_outline_black_24dp"-->
+    <!--app:iconPadding="0dp"/>-->
+    <!--</com.google.android.material.button.MaterialButtonToggleGroup>-->
+
+    <!--    <com.google.android.material.card.MaterialCardView-->
+    <!--        android:id="@+id/deviceSwitch"-->
+    <!--        android:layout_width="130dp"-->
+    <!--        android:layout_height="130dp"-->
+    <!--        android:layout_gravity="center"-->
+    <!--        app:cardCornerRadius="70dp"-->
+    <!--        app:cardElevation="1dp">-->
+
+    <!--        <ImageView-->
+    <!--            android:layout_width="70dp"-->
+    <!--            android:layout_height="70dp"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:src="@drawable/ic_lightbulb_outline_black_24dp" />-->
+    <!--    </com.google.android.material.card.MaterialCardView>-->
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottoAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:fitsSystemWindows="true"
+        app:fabAlignmentMode="end"
+        app:navigationIcon="@drawable/ic_menu_black_24dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="223dp"
+        android:onClick="activitySwitcher"
+        android:src="@drawable/ic_add_black_24dp"
+        app:layout_anchor="@id/bottoAppBar" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

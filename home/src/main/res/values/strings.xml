@@ -4,4 +4,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="discover_button_text">discover</string>
+
+    <string-array name="device_types" translatable="false">
+        <item>Bulb</item>
+        <item>Fan</item>
+        <item>Speaker</item>
+    </string-array>
 </resources>
