@@ -37,7 +37,7 @@ public class PortManager {
             }
         }
         for (Port port : portList) {
-            Log.i(TAG, port.portName);
+//            Log.i(TAG, port.portName);
         }
     }
 
@@ -48,5 +48,15 @@ public class PortManager {
             }
         }
         return null;
+    }
+
+    public int getTotalAvailblePort() {
+        int count = 0;
+        for (Port port : portList) {
+            if (port.isAvailable) {
+                count++;
+            }
+        }
+        return count;
     }
 }

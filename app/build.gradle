@@ -30,4 +30,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     compileOnly 'com.google.android.things:androidthings:+'
     implementation 'com.google.android.gms:play-services-nearby:17.0.0'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
 }

@@ -1,30 +1,12 @@
 package com.example.homeautomata;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import com.example.homeautomata.Controller.DeviceController;
 import com.example.homeautomata.lib.BaseActivity;
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.connection.AdvertisingOptions;
-import com.google.android.gms.nearby.connection.ConnectionInfo;
-import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
-import com.google.android.gms.nearby.connection.ConnectionResolution;
-import com.google.android.gms.nearby.connection.ConnectionsClient;
-import com.google.android.gms.nearby.connection.Payload;
-import com.google.android.gms.nearby.connection.PayloadCallback;
-import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
-import com.google.android.gms.nearby.connection.Strategy;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
-import java.io.IOException;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Skeleton of an Android Things activity.
@@ -64,7 +46,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        mHandler.post(mDeviceControllerRunnable);
         startAdvertising();
     }
 
@@ -79,16 +60,14 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onReceiveCommand(String[] cmd) {
-        switch (cmd[0]) {
-            case "Create":
-                showToast("Creating....");
-                deviceController.createDevices(cmd[1], cmd[2], cmd[3]);
+    protected void onReceiveCommand(String command) {
+        JsonElement jsonElement = new Gson().fromJson(command, JsonElement.class);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        switch (jsonObject.get("deviceState").getAsString()) {
+            case "create":
+                String deviceJsonString = deviceController.createDevices(jsonObject, this);
+                sendCommand(deviceJsonString);
+                break;
         }
     }
-
-    //    Controling over mobile
-//    private void updateState(String s) {
-//        deviceController.updateDeviceState(s);
-//    }
 }

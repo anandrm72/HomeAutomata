@@ -1,7 +1,6 @@
 package com.example.homeautomata.lib;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -110,18 +109,21 @@ public class BaseActivity extends Activity {
     protected void onEndpointConnected(String endpoitId) {
     }
 
-    private void receiveCommand(String cmd) {
-        String[] splitter = cmd.split("/");
-        onReceiveCommand(splitter);
+    private void receiveCommand(String command) {
+        onReceiveCommand(command);
     }
 
-    protected void onReceiveCommand(String[] cmd) {
+    protected void onReceiveCommand(String command) {
+    }
+
+    protected void sendCommand(String command) {
+        mConnectionsClient.sendPayload(endpoitId, Payload.fromBytes(command.getBytes(UTF_8)));
     }
 
 
-    protected void sendCommand(String msg) {
-        mConnectionsClient.sendPayload(endpoitId, Payload.fromBytes(msg.getBytes(UTF_8)));
-    }
+//    protected void sendCommand(String msg) {
+//        mConnectionsClient.sendPayload(endpoitId, Payload.fromBytes(msg.getBytes(UTF_8)));
+//    }
 
     //    Log message
     protected void logD(String msg) {

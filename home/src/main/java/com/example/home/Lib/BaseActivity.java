@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.home.Controller.DeviceManager;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -27,6 +28,9 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -49,7 +53,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private final PayloadCallback mPayloadCallBack = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
-
+            receiveCommand(new String(payload.asBytes(), UTF_8));
         }
 
         @Override
@@ -59,6 +63,17 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void receiveCommand(String msg) {
+        JsonElement jsonElement = new Gson().fromJson(msg, JsonElement.class);
+        JsonObject command = jsonElement.getAsJsonObject();
+        switch (command.get("deviceState").getAsString()) {
+            case "success":
+                DeviceManager.getInstance().updateDevice(command);
+                break;
+        }
+    }
+
     private ConnectionsClient mConnectionsClient;
     private final ConnectionLifecycleCallback mConnectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
@@ -170,8 +185,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onEndpointConnected(String endpoitId) {
     }
 
-    protected void sendCommand(String msg) {
-        mConnectionsClient.sendPayload(endpoitId, Payload.fromBytes(msg.getBytes(UTF_8)));
+    protected void sendCommand(String deviceJsonString) {
+        mConnectionsClient.sendPayload(endpoitId, Payload.fromBytes(deviceJsonString.getBytes(UTF_8)));
+        showToast("sending message..");
     }
 
     //    Log message

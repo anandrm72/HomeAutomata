@@ -22,14 +22,12 @@
         android:indeterminateTintMode="src_atop"
         android:visibility="invisible" />
 
-    <!--    <Button-->
-    <!--        android:id="@+id/discover"-->
-    <!--        style="@style/Widget.MaterialComponents.Button"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_gravity="top"-->
-    <!--        android:layout_margin="16dp"-->
-    <!--        android:text="@string/discover_button_text" />-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/deviceListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical" />
+
 
     <!--<com.google.android.material.button.MaterialButtonToggleGroup-->
     <!--android:layout_width="wrap_content"-->

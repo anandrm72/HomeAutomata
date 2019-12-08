@@ -12,10 +12,19 @@ public class Device {
 //    private String deviceOutputPort;
     private String deviceType;
     private String deviceCategory;
-    private boolean deviceState;
+    private String deviceState;
+    private boolean deviceSwitchState;
 
     private HardwareInputControlSystem hardwareInputControlSystem = new HardwareInputControlSystem();
     private OutputControlSystem outputControlSystem = new OutputControlSystem();
+
+    public String getDeviceState() {
+        return deviceState;
+    }
+
+    public void setDeviceState(String deviceState) {
+        this.deviceState = deviceState;
+    }
 
     public String getDeviceId() {
         return deviceId;
@@ -81,23 +90,26 @@ public class Device {
         this.deviceCategory = deviceCategory;
     }
 
-    public boolean isDeviceState() {
-        return deviceState;
+    public boolean isDeviceSwitchState() {
+        return deviceSwitchState;
     }
 
-    public void setDeviceState(boolean deviceState) {
-        this.deviceState = deviceState;
+    public void setDeviceSwitchState(boolean deviceSwitchState) {
+        this.deviceSwitchState = deviceSwitchState;
     }
 
-    public void init() {
+    public void initInputControlesystem() {
         hardwareInputControlSystem.init(this, deviceInputPort.getPortName());
-        outputControlSystem.init(deviceOutputPort.getPortName());
         deviceInputPort.setAvailable(false);
+    }
+
+    public void initOutputControlesystem() {
+        outputControlSystem.init(deviceOutputPort.getPortName());
         deviceOutputPort.setAvailable(false);
     }
 
     public void onDeviceStateChange(boolean deviceState) {
-        this.deviceState = deviceState;
+        this.deviceSwitchState = deviceState;
         outputControlSystem.setState(deviceState);
     }
 }

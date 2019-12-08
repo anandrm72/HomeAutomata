@@ -6,6 +6,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.home.Controller.DeviceManager;
 import com.example.home.Lib.BaseActivity;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -16,15 +20,23 @@ public class MainActivity extends BaseActivity /*implements NavigationHost*/ {
     private BottomSheetDialog bottomSheetDialog;
     private Button connectButton;
     private ProgressBar progressBar;
+    private RecyclerView deviceListView;
+    private DeviceAdapter deviceAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         progressBar = findViewById(R.id.progress_circular);
+
+        deviceListView = findViewById(R.id.deviceListView);
+        deviceListView.setLayoutManager(new GridLayoutManager(this, 1));
+        deviceAdapter = new DeviceAdapter(this, DeviceManager.getInstance().getDeviceList());
+        deviceListView.setAdapter(deviceAdapter);
         initBottomBar();
         initBottomSheet();
     }
+
 
     private void initBottomSheet() {
         bottomSheetDialog = new BottomSheetDialog(this);
@@ -43,6 +55,7 @@ public class MainActivity extends BaseActivity /*implements NavigationHost*/ {
     private void dismissBottomSheet() {
         bottomSheetDialog.dismiss();
     }
+
 
     private void initBottomBar() {
         bottomAppBar = findViewById(R.id.bottoAppBar);
@@ -75,4 +88,12 @@ public class MainActivity extends BaseActivity /*implements NavigationHost*/ {
             showToast("Device not connected");
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        deviceAdapter.notifyDataSetChanged();
+
+    }
+
 }

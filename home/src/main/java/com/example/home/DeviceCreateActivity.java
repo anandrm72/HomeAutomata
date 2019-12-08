@@ -1,14 +1,18 @@
 package com.example.home;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.home.Controller.DeviceManager;
 import com.example.home.Lib.BaseActivity;
+import com.example.home.Model.Device;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import java.util.UUID;
 
 public class DeviceCreateActivity extends BaseActivity {
     private EditText deviceNameET, deviceCategoryET;
@@ -30,10 +34,15 @@ public class DeviceCreateActivity extends BaseActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String msg = "Create" + "/" + deviceNameET.getText().toString() + "/" + deviceCategoryET
-                        .getText().toString() + "/" + deviceTypeTV
-                        .getText().toString();
-                sendCommand(msg);
+                Device device = new Device();
+                device.setDeviceId(UUID.randomUUID().toString());
+                device.setDeviceName(deviceNameET.getText().toString());
+                device.setDeviceType(deviceTypeTV.getText().toString());
+                device.setDeviceCategory(deviceCategoryET.getText().toString());
+                device.setDeviceState("create");
+                String deviceJsonString = new Gson().toJson(device);
+                DeviceManager.getInstance().addDevice(device);
+                sendCommand(deviceJsonString);
             }
         });
     }
